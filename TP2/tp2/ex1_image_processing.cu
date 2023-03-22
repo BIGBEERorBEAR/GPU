@@ -22,7 +22,7 @@ __global__ void process(int N, int M, int C, int pitch, float* img)
     int j = blockIdx.y * blockDim.y + threadIdx.y;
     
     // Check if (i,j) is within the image bounds
-    if (i < M && j < N) {
+    if (i < N && j < M) {
         // Get the address of the pixel (i,j)
         float* pixel_ptr = get_ptr(img, i, j, C, pitch);
         float gray = (pixel_ptr[0] + pixel_ptr[1] + pixel_ptr[2]) / 3;
