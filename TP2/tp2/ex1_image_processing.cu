@@ -52,17 +52,17 @@ int main(int argc, char const *argv[])
     float* d_img;
     size_t pitch;
     cudaMallocPitch(&d_img, &pitch, C * N * sizeof(float), M);
-    cudaMemcpy2D(d_img, pitch, img, C * sizeof(float), C * N * sizeof(float), M, cudaMemcpyHostToDevice);
+    cudaMemcpy2D(d_img, pitch, img, C * N * sizeof(float), C * N * sizeof(float), M, cudaMemcpyHostToDevice);
 
     // Define the size of the grid and the block
-    dim3 block(32, 32, 1);
-    dim3 grid((N + block.x - 1) / block.x, (M + block.y - 1) / block.y, 1);
+    dim3 block(16, 16);
+    dim3 grid((M + block.x - 1) / block.x, (N + block.y - 1) / block.y);
 
     // Call the kernel function to process the image
     process<<<grid, block>>>(N, M, C, (int)pitch / sizeof(float), d_img);
 
     // Copy the modified image back to the host
-    cudaMemcpy2D(img, C * sizeof(float), d_img, pitch, C * N * sizeof(float), M, cudaMemcpyDeviceToHost);
+    cudaMemcpy2D(img, C * N * sizeof(float), d_img, pitch, C * N * sizeof(float), M, cudaMemcpyDeviceToHost);
 
     image::save("result.jpg", N, M, C, img);
 
