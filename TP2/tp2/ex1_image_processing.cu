@@ -64,7 +64,7 @@ int main(int argc, char const *argv[])
     // Copy the modified image back to the host
     cudaMemcpy2D(img, C * N * sizeof(float), d_img, pitch / sizeof(float), C * N * sizeof(float), M, cudaMemcpyDeviceToHost);
 
-    image::save("res.jpg", N, M, C, img);
+    image::save("result.jpg", N, M, C, img);
 
     free(img);
 
