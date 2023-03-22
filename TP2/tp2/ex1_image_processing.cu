@@ -9,9 +9,10 @@ inline void cuda_check(cudaError_t code, const char *file, int line) {
     }
 }
 
+
 template <typename T>
 __device__ inline T* get_ptr(T *img, int i, int j, int C, size_t pitch) {
-	return img + (i * pitch) + (j * C);
+	return img + (i * pitch / sizeof(float)) + (j * C);
 }
 
 
@@ -58,7 +59,7 @@ int main(int argc, char const *argv[])
     dim3 grid((M + block.x - 1) / block.x, (N + block.y - 1) / block.y);
 
     // Call the kernel function to process the image
-    process<<<grid, block>>>(N, M, C, pitch / sizeof(float), d_img);
+    process<<<grid, block>>>(N, M, C, pitch, d_img);
 
     // Copy the modified image back to the host
     cudaMemcpy2D(img, C * N * sizeof(float), d_img, pitch, C * N * sizeof(float), M, cudaMemcpyDeviceToHost);
