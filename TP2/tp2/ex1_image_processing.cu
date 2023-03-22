@@ -12,14 +12,14 @@ inline void cuda_check(cudaError_t code, const char *file, int line) {
 
 template <typename T>
 __device__ inline T* get_ptr(T *img, int i, int j, int C, size_t pitch) {
-	return img + (i * pitch / sizeof(float)) + (j * C);
+	return img + (i * pitch) + (j * C);
 }
 
 
 __global__ void process(int N, int M, int C, int pitch, float* img)
 {
-    int i = blockIdx.y * blockDim.y + threadIdx.y;
-    int j = blockIdx.x * blockDim.x + threadIdx.x;
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    int j = blockIdx.y * blockDim.y + threadIdx.y;
     
     // Check if (i,j) is within the image bounds
     if (i < M && j < N) {
@@ -62,9 +62,9 @@ int main(int argc, char const *argv[])
     process<<<grid, block>>>(N, M, C, pitch, d_img);
 
     // Copy the modified image back to the host
-    cudaMemcpy2D(img, C * N * sizeof(float), d_img, pitch, C * N * sizeof(float), M, cudaMemcpyDeviceToHost);
+    cudaMemcpy2D(img, C * N * sizeof(float), d_img, pitch / sizeof(float), C * N * sizeof(float), M, cudaMemcpyDeviceToHost);
 
-    image::save("result.jpg", N, M, C, img);
+    image::save("res.jpg", N, M, C, img);
 
     free(img);
 
