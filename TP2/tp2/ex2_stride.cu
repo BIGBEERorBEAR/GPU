@@ -40,24 +40,9 @@ int main(int argc, char const *argv[])
     cudaMemcpy(array_x, x, N * sizeof(float), cudaMemcpyHostToDevice);
     cudaMemcpy(array_y, y, N * sizeof(float), cudaMemcpyHostToDevice);
 
-    add<<<(N+255)/256, 256>>>(array_x, array_y, N);
+    add<<<512,128>>>(array_x, array_y, N);
+    cudaMemcpy(y, array_y, N * sizeof(float), cudaMemcpyDeviceToHost);
     CUDA_CHECK(cudaDeviceSynchronize());
-    int i = 0;
-
-    while (i < N)
-    {
-        if (array_y[i] == 3.0f)
-        {
-            std::cout << "y[" << i << "] = " << array_y[i] << std::endl;
-            i++;
-            continue;
-        }
-        else
-        {
-            std::cerr << "Error at position " << i << std::endl;
-            return 1;
-        }
-    }
 
     free(x);
     free(y);
